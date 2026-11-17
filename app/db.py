@@ -1,10 +1,11 @@
+import os
 import sqlite3
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+DATA_DIR = Path(os.environ.get("LMS_DATA_DIR", str(BASE_DIR / "data")))
 DATA_DIR.mkdir(exist_ok=True)
-DB_PATH = DATA_DIR / "lms.db"
+DB_PATH = Path(os.environ.get("LMS_DB_PATH", str(DATA_DIR / "lms.db")))
 
 
 def get_conn() -> sqlite3.Connection:

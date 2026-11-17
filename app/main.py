@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import json
 import logging
+import os
 import secrets
 import time
 from collections import defaultdict, deque
@@ -49,8 +50,14 @@ class RateLimiter:
         q.append(now)
 
 
-auth_limiter = RateLimiter(max_requests=10, window_seconds=60)
-general_limiter = RateLimiter(max_requests=120, window_seconds=60)
+auth_limiter = RateLimiter(
+    max_requests=int(os.environ.get("LMS_AUTH_RATE_LIMIT", "10")),
+    window_seconds=int(os.environ.get("LMS_AUTH_RATE_WINDOW", "60")),
+)
+general_limiter = RateLimiter(
+    max_requests=int(os.environ.get("LMS_API_RATE_LIMIT", "120")),
+    window_seconds=60,
+)
 
 
 # ---------- auth helpers ----------
