@@ -160,6 +160,18 @@ backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
 .main { padding: 48px 20px 90px; }
 .section-title { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
 
+.view--center { text-align: center; }
+.view--center .section-title { text-align: center; }
+.view--center .search-wrap { margin-left: auto; margin-right: auto; }
+.view--center .grid { justify-content: center; }
+.view--center .card { align-items: center; text-align: center; }
+.view--center .card__title,
+.view--center .card__desc,
+.view--center .card__meta { text-align: center; }
+.view--center .card__cat { align-self: center; }
+.view--center .cards,
+.view--center #courses { margin: 0 auto; }
+
 .search-wrap { position: relative; max-width: 420px; margin: 18px 0 26px; }
 .search-wrap__icon {
   position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
