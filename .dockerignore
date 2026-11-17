@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.log
+server_out.log
+server_err.log
+data/
+venv/
+.venv/
+.git/
