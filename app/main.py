@@ -567,7 +567,7 @@ def mark_complete(lesson_id: int, user: dict = Depends(require_auth)):
 @app.post("/api/lessons/{lesson_id}/submit")
 def submit_quiz(lesson_id: int, data: SubmitQuiz, user: dict = Depends(require_auth)):
     conn = get_conn()
-    l = conn.execute("SELECT id FROM lessons WHERE id = ?", (lesson_id,)).fetchone()
+    l = conn.execute("SELECT id, course_id FROM lessons WHERE id = ?", (lesson_id,)).fetchone()
     if not l:
         conn.close()
         raise HTTPException(status_code=404, detail="Урок не найден")
