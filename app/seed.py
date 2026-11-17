@@ -1,5 +1,33 @@
 """Seed data: курсы из контента Ростелекома (обучение, ИИ, развитие)."""
+import hashlib
+import hmac
+import os
+import secrets
+
 from .db import get_conn
+
+
+def _hash_password(password: str, salt: str | None = None) -> str:
+    salt = salt or secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 100_000).hex()
+    return f"{salt}${digest}"
+
+
+def ensure_admin(conn) -> None:
+    """Создаёт первого администратора из env LMS_ADMIN_USERNAME / LMS_ADMIN_PASSWORD,
+    если администратор ещё не существует. Безопасно: пароль по умолчанию не задаётся."""
+    username = (os.environ.get("LMS_ADMIN_USERNAME") or "").strip()
+    password = os.environ.get("LMS_ADMIN_PASSWORD") or ""
+    if not username or not password:
+        return
+    admin = conn.execute("SELECT id FROM users WHERE role = 'admin' LIMIT 1").fetchone()
+    if admin:
+        return
+    conn.execute(
+        "INSERT OR IGNORE INTO users (username, password_hash, full_name, role) VALUES (?,?,?,?)",
+        (username, _hash_password(password), "Администратор", "admin"),
+    )
+    conn.commit()
 
 
 def seed_if_empty(conn) -> bool:
@@ -11,6 +39,7 @@ def seed_if_empty(conn) -> bool:
 
 def seed() -> None:
     conn = get_conn()
+    ensure_admin(conn)
     if not seed_if_empty(conn):
         conn.close()
         return

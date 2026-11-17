@@ -709,7 +709,10 @@ def admin_audit(_: dict = Depends(require_admin)):
 async def rate_limit_middleware(request: Request, call_next):
     if request.url.path.startswith("/api"):
         host = request.client.host if request.client else "unknown"
-        general_limiter.check("api:" + host)
+        try:
+            general_limiter.check("api:" + host)
+        except HTTPException as exc:
+            return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
     return await call_next(request)
 
 
