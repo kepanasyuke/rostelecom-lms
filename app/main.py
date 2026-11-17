@@ -247,17 +247,32 @@ def list_courses(user: dict = Depends(require_auth)):
         "SELECT id, title, description, category, icon, duration_hours, pass_score, published, order_index "
         "FROM courses ORDER BY order_index, id"
     ).fetchall()
-    courses = []
-    for r in rows:
-        lesson_count = conn.execute(
-            "SELECT COUNT(*) AS c FROM lessons WHERE course_id = ?", (r["id"],)
-        ).fetchone()["c"]
-        done = conn.execute(
-            "SELECT COUNT(DISTINCT p.lesson_id) AS c FROM progress p JOIN lessons l ON l.id = p.lesson_id "
-            "WHERE p.user_id = ? AND l.course_id = ?",
-            (user["id"], r["id"]),
-        ).fetchone()["c"]
-        courses.append({**_course_dict(r), "lessons": lesson_count, "completed": done})
+    if not rows:
+        conn.close()
+        return []
+
+    ids = tuple(r["id"] for r in rows)
+    placeholders = ",".join("?" * len(ids))
+
+    # количество уроков по курсам — одним запросом
+    lesson_counts = {row["course_id"]: row["c"] for row in conn.execute(
+        f"SELECT course_id, COUNT(*) AS c FROM lessons WHERE course_id IN ({placeholders}) GROUP BY course_id", ids
+    )}
+
+    done_map = {}
+    if user["id"]:
+        for row in conn.execute(
+            f"SELECT l.course_id AS course_id, COUNT(DISTINCT p.lesson_id) AS c "
+            f"FROM progress p JOIN lessons l ON l.id = p.lesson_id "
+            f"WHERE p.user_id = ? AND l.course_id IN ({placeholders}) GROUP BY l.course_id",
+            (user["id"],) + ids,
+        ):
+            done_map[row["course_id"]] = row["c"]
+
+    courses = [
+        {**_course_dict(r), "lessons": lesson_counts.get(r["id"], 0), "completed": done_map.get(r["id"], 0)}
+        for r in rows
+    ]
     conn.close()
     return courses
 
@@ -330,16 +345,29 @@ def list_lessons(course_id: int, user: dict = Depends(require_auth)):
         "SELECT id, course_id, title, order_index FROM lessons WHERE course_id = ? ORDER BY order_index, id",
         (course_id,),
     ).fetchall()
+    if not rows:
+        conn.close()
+        return {"course": dict(course), "lessons": []}
+
+    ids = tuple(r["id"] for r in rows)
+    ph = ",".join("?" * len(ids))
+
+    # прогресс пользователя по всем урокам курса — одним запросом
+    progress_map = {p["lesson_id"]: p for p in conn.execute(
+        f"SELECT lesson_id, quiz_score, quiz_max FROM progress WHERE user_id = ? AND lesson_id IN ({ph})",
+        (user["id"],) + ids,
+    )}
+    # число вопросов по всем урокам — одним запросом
+    quiz_counts = {q["lesson_id"]: q["c"] for q in conn.execute(
+        f"SELECT lesson_id, COUNT(*) AS c FROM quizzes WHERE lesson_id IN ({ph}) GROUP BY lesson_id", ids
+    )}
+
     result = []
     for l in rows:
-        p = conn.execute(
-            "SELECT quiz_score, quiz_max FROM progress WHERE user_id = ? AND lesson_id = ?",
-            (user["id"], l["id"]),
-        ).fetchone()
-        quiz_count = conn.execute("SELECT COUNT(*) AS c FROM quizzes WHERE lesson_id = ?", (l["id"],)).fetchone()["c"]
+        p = progress_map.get(l["id"])
         result.append({
             **dict(l),
-            "quiz_count": quiz_count,
+            "quiz_count": quiz_counts.get(l["id"], 0),
             "completed": p is not None,
             "score": p["quiz_score"] if p else None,
             "score_max": p["quiz_max"] if p else None,
