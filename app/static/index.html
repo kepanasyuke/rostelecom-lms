@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ростелеком ЛМС — Платформа обучения</title>
+  <title>Ростелеком — Корпоративная ЛМС</title>
+  <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png" />
+  <link rel="apple-touch-icon" href="/static/img/favicon-32.png" />
   <link rel="stylesheet" href="/static/css/style.css" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230044ff'/%3E%3Cpath d='M9 22V11.5h3.5l3.5 6 3.5-6H23V22h-2.6v-7l-3.4 6h-2l-3.4-6v7z' fill='%23fff'/%3E%3C/svg%3E" />
 </head>
 <body>
   <div id="app">
@@ -13,7 +15,7 @@
     <header class="header">
       <div class="container header__inner">
         <a href="#" class="brand" data-nav="home">
-          <span class="brand__logo">РТ</span>
+          <img class="brand__logo" src="/static/img/rt-logo.svg" alt="Логотип Ростелекома" />
           <span class="brand__text">
             <span class="brand__title">Ростелеком</span>
             <span class="brand__subtitle">Корпоративная ЛМС</span>
@@ -24,23 +26,33 @@
           <button class="nav__link" data-nav="stats">Мои результаты</button>
           <button class="nav__link admin-only" data-nav="admin" style="display:none">Админ-панель</button>
         </nav>
+        <button class="hamburger" id="btn-burger" aria-label="Меню">
+          <img src="/static/img/rt-menu.svg" alt="" class="hamburger__icon" />
+        </button>
         <div class="header__auth">
           <span id="user-badge" class="user-badge" style="display:none"></span>
           <button class="btn btn--outline" id="btn-logout" style="display:none">Выйти</button>
-          <button class="btn btn--primary" id="btn-login">Войти</button>
+          <button class="btn btn--primary" id="btn-login">Войти
+            <img src="/static/img/rt-arrow-right.svg" alt="" class="btn__arrow" />
+          </button>
         </div>
       </div>
     </header>
 
     <!-- Герой -->
-    <section class="hero">
-      <div class="container">
+    <section class="hero" style="background-image:url('/static/img/hero-purple.jpg')">
+      <div class="hero__overlay"></div>
+      <div class="container hero__content">
         <h1 class="hero__title">Ты влияешь<br />на ход событий</h1>
         <p class="hero__subtitle">
           Платформа обучения Ростелекома — курсы по цифровым сервисам, ИИ и развитию команды.
           Учитесь, проходите тесты и отслеживайте прогресс.
         </p>
-        <button class="btn btn--accent" data-scroll="courses">Начать учиться</button>
+        <div class="hero__actions">
+          <button class="btn btn--accent" data-scroll="courses">Начать учиться
+            <img src="/static/img/rt-arrow-right.svg" alt="" class="btn__arrow" />
+          </button>
+        </div>
       </div>
     </section>
 
@@ -48,7 +60,10 @@
     <main class="container main">
       <section id="view-home" class="view">
         <h2 class="section-title">Каталог курсов</h2>
-        <input id="search" class="search" type="search" placeholder="Поиск по курсам…" />
+        <div class="search-wrap">
+          <img src="/static/img/rt-search.svg" alt="" class="search-wrap__icon" />
+          <input id="search" class="search" type="search" placeholder="Поиск по курсам…" />
+        </div>
         <div id="courses" class="grid courses"></div>
       </section>
 
@@ -63,12 +78,16 @@
       </section>
 
       <section id="view-course" class="view" style="display:none">
-        <a href="#" class="back" data-nav="home">← К каталогу</a>
+        <a href="#" class="back" data-nav="home">
+          <img src="/static/img/rt-arrow-left.svg" alt="" class="back__arrow" />К каталогу
+        </a>
         <div id="course-detail"></div>
       </section>
 
       <section id="view-lesson" class="view" style="display:none">
-        <a href="#" class="back" id="back-to-course">← К курсу</a>
+        <a href="#" class="back" id="back-to-course">
+          <img src="/static/img/rt-arrow-left.svg" alt="" class="back__arrow" />К курсу
+        </a>
         <div id="lesson-detail"></div>
       </section>
     </main>
@@ -76,7 +95,9 @@
     <!-- Модалка входа -->
     <div class="modal" id="auth-modal">
       <div class="modal__box">
-        <button class="modal__close" id="auth-close">×</button>
+        <button class="modal__close" id="auth-close">
+          <img src="/static/img/rt-close.svg" alt="Закрыть" class="modal__close-icon" />
+        </button>
         <h3 id="auth-title">Вход в платформу</h3>
         <form id="auth-form">
           <label class="field">

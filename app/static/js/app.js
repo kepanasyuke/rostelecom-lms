@@ -15,7 +15,7 @@ const api = {
 
 const state = { user: null, courses: [], course: null };
 
-const icons = { wifi: "📡", ai: "🤖", growth: "🌱", default: "📚" };
+const icons = { wifi: "rt-wifi.svg", ai: "rt-ai.svg", growth: "rt-growth.svg", default: "rt-default.svg" };
 
 function toast(text, kind) {
   const el = $("#toast");
@@ -64,7 +64,7 @@ function courseCard(c) {
   const icon = c.icon && icons[c.icon] ? icons[c.icon] : icons.default;
   const p = pct(c);
   return '<div class="card" onclick="openCourse(' + c.id + ')">'
-    + '<div class="card__icon">' + icon + '</div>'
+    + '<div class="card__icon"><img src="/static/img/' + icon + '" alt="" class="card__svg" /></div>'
     + '<div class="card__cat">' + esc(c.category) + '</div>'
     + '<h3 class="card__title">' + esc(c.title) + '</h3>'
     + '<p class="card__desc">' + esc(c.description) + '</p>'
@@ -231,6 +231,7 @@ async function refreshAll() {
 
 function attach() {
   $("#btn-login").addEventListener("click", () => openModal("login"));
+  $("#btn-burger").addEventListener("click", () => { document.querySelector(".nav").classList.toggle("open"); });
   $("#auth-close").addEventListener("click", closeModal);
   $("#auth-form").addEventListener("submit", submitAuth);
   $("#btn-logout").addEventListener("click", logout);
